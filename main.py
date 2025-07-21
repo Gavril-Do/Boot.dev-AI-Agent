@@ -8,11 +8,16 @@ def main():
     load_dotenv()
 
     args = sys.argv[1:]
-    args.append("Use less than 250 characters.")
 
     if not args:
         print("Error: No Prompt")
         sys.exit(1)
+
+    verbose = False
+    if args[-1] == "--verbose" or args[-1] == "Verbose":
+        args = args[:-1]
+        verbose = True
+    args.append("Use less than 250 characters.")
     user_prompt = " ".join(args)
 
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -29,6 +34,12 @@ def main():
 
     prompt_tokens = response.usage_metadata.prompt_token_count
     response_tokens = response.usage_metadata.candidates_token_count
-    print(f"Prompt tokens: {prompt_tokens}\nResponse tokens: {response_tokens}")
+    if verbose is True:
+        print(f"User prompt: '{user_prompt}'")
+        print(f"Prompt tokens: {prompt_tokens}\nResponse tokens: {response_tokens}")
     print("Response:")
     print(response.text)
+
+
+if __name__ == "__main__":
+    main()
