@@ -7,16 +7,16 @@ from google.genai import types
 def main():
     load_dotenv()
 
-    args = sys.argv[1:]
+    verbose = "--verbose" in sys.argv
+    args = []
+    for arg in sys.argv[1:]:
+        if not arg.startswith("--"):
+            args.append(arg)
 
     if not args:
         print("Error: No Prompt")
         sys.exit(1)
 
-    verbose = False
-    if args[-1] == "--verbose" or args[-1] == "Verbose":
-        args = args[:-1]
-        verbose = True
     args.append("Use less than 250 characters.")
     user_prompt = " ".join(args)
 
