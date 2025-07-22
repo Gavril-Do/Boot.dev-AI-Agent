@@ -1,4 +1,5 @@
 from functions.get_files_info import *
+from functions.get_files_content import *
 
 print(f"==1==\n{get_file_content("calculator", "main.py")}")
 print(f"==2==\n{get_file_content("calculator", "pkg/calculator.py")}")
