@@ -1,8 +1,9 @@
 import os
 from config import *
+from google.genai import types
 
 
-def get_file_content(working_directory, file_path):
+def get_file_contents(working_directory, file_path):
     if not os.path.isdir(working_directory):
         return f'Error: "{working_directory}" is not a directory'
     files_dir = os.path.join(working_directory, file_path)
@@ -26,3 +27,18 @@ def get_file_content(working_directory, file_path):
         return f"Error reading file: {e}"
     # If any errors are raised by the standard library functions, catch them and instead return a string describing the error.
     # Always prefix errors with "Error:".
+
+
+schema_get_file_contents = types.FunctionDeclaration(
+    name="get_file_contents",
+    description="Retrieves the contents of a specified file, constrained to the working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Path to the specified file, relative to the working directory.",
+            ),
+        },
+    ),
+)

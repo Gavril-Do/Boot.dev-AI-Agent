@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from config import *
+from call_functions import *
 
 
 def main():
