@@ -43,11 +43,11 @@ def main():
     if verbose is True:
         print(f"User prompt: '{user_prompt}'")
         print(f"Prompt tokens: {prompt_tokens}\nResponse tokens: {response_tokens}")
-    print(
-        f"Calling function: {response_functions[0].name}({response_functions[0].args})"
-    )
-    print("Response:")
-    print(response.text)
+
+    if not response.function_calls:
+        print(f"Response:\n{response.text}")
+    for function_call in response.function_calls:
+        print(f"Calling function: {function_call.name}({function_call.args})")
 
 
 if __name__ == "__main__":
