@@ -31,14 +31,21 @@ def main():
     response = client.models.generate_content(
         model="gemini-2.0-flash-001",
         contents=messages,
-        config=types.GenerateContentConfig(system_instruction=system_prompt),
+        config=types.GenerateContentConfig(
+            tools=[available_functions],
+            system_instruction=system_prompt,
+        ),
     )
 
     prompt_tokens = response.usage_metadata.prompt_token_count
     response_tokens = response.usage_metadata.candidates_token_count
+    response_functions = response.function_calls
     if verbose is True:
         print(f"User prompt: '{user_prompt}'")
         print(f"Prompt tokens: {prompt_tokens}\nResponse tokens: {response_tokens}")
+    print(
+        f"Calling function: {response_functions[0].name}({response_functions[0].args})"
+    )
     print("Response:")
     print(response.text)
 
