@@ -1,7 +1,9 @@
 # from google import genai
 from google.genai import types
 
-MAX_CHARS = 10000
+MAX_CHARS = 1000
+WORKING_DIR = "./calculator"
+
 system_prompt = """
 You are a helpful AI coding agent.
 

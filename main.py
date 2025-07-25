@@ -40,10 +40,18 @@ def main():
 
     prompt_tokens = response.usage_metadata.prompt_token_count
     response_tokens = response.usage_metadata.candidates_token_count
-    response_functions = response.function_calls
-    if verbose is True:
+    response_functions = response.function_calls[0]
+    function_response = call_function(response_functions, verbose)
+    try:
+        readable_function_response = function_response.parts[
+            0
+        ].function_response.response["result"]
+    except Exception as e:
+        return f"Fatal exception: {e}"
+    if verbose:
         print(f"User prompt: '{user_prompt}'")
         print(f"Prompt tokens: {prompt_tokens}\nResponse tokens: {response_tokens}")
+        print(f"-> {readable_function_response}")
 
     if not response.function_calls:
         print(f"Response:\n{response.text}")
