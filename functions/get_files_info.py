@@ -4,25 +4,18 @@ from google.genai import types
 
 
 def get_files_info(working_directory, directory="."):
-    # if directory arg is not a dir, return error
-    if not os.path.isdir(working_directory):
-        return f'Error: "{working_directory}" is not a directory'
-    # if abs path is outside working dir, return error
-    # .startswith()
-    files_dir = os.path.join(working_directory, directory)
-    if not os.path.isdir(files_dir):
-        return f'Error: "{directory}" is not a directory'
-    if not os.path.abspath(files_dir).startswith(os.path.abspath(working_directory)):
+    abs_working_dir = os.path.abspath(working_directory)
+    target_dir = os.path.abspath(os.path.join(working_directory, directory))
+    if not target_dir.startswith(abs_working_dir):
         return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
-    # Build and return a string representing the contents of the directory. It should use this format:
-    # - README.md: file_size=1032 bytes, is_dir=False
-    # - src: file_size=128 bytes, is_dir=True
-    # - package.json: file_size=1234 bytes, is_dir=False
+    if not os.path.isdir(target_dir):
+        return f'Error: "{directory}" is not a directory'
     try:
         contents = [f"result for '{directory}' directory:"]
-        for item in os.listdir(files_dir):
+        for item in os.listdir(target_dir):
+            filepath = os.path.join(target_dir, item)
             contents.append(
-                f" - {item}: files_size={os.path.getsize(os.path.join(files_dir, item))}, is_dir={os.path.isdir(os.path.join(files_dir, item))}",
+                f" - {item}: files_size={os.path.getsize(filepath)}, is_dir={os.path.isdir(filepath)}",
             )
         return "\n".join(contents)
     except Exception as e:

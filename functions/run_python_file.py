@@ -14,7 +14,9 @@ def run_python_file(working_directory, file_path, args=[]):
         return f'Error: "{file_path}" is not a Python file.'
 
     try:
-        commands = ["python", file_path, *args]
+        commands = ["python", abs_file_path]
+        if args:
+            commands.extend(args)
         proc = subprocess.run(
             commands,
             capture_output=True,
@@ -23,16 +25,15 @@ def run_python_file(working_directory, file_path, args=[]):
             cwd=abs_working_dir,
         )
 
-        ret_list = []
+        output = []
         if proc.stdout:
-            ret_list.append(f"STDOUT:\n{proc.stdout}")
+            output.append(f"STDOUT:\n{proc.stdout}")
         if proc.stderr:
-            ret_list.append(f"STDERR:\n{proc.stderr}")
+            output.append(f"STDERR:\n{proc.stderr}")
         if proc.returncode != 0:
-            ret_list.append(f"Process exited with code {proc.returncode}")
-        ret_str = "\n".join(ret_list) if ret_list else "No output produced."
+            output.append(f"Process exited with code {proc.returncode}")
 
-        return ret_str
+        return "\n".join(output) if output else "No output produced."
     except Exception as e:
         return f"Error: executing Python file: {e}"
 
