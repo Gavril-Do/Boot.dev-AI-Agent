@@ -8,7 +8,11 @@ MAX_ITERS = 20
 system_prompt = """
 You are a helpful AI coding agent.
 
-When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
+When a user asks a question or makes a request, make a function call plan.
+
+If a user requests help with debugging try to change as little of the code as possible.
+
+You can perform the following operations:
 
 - List files and directories
 - Read file contents

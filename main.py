@@ -58,6 +58,7 @@ def main():
                 break
         except Exception as e:
             print(f"Error in generate content: {e}")
+            break
 
 
 def generate_content(client, messages, verbose):
