@@ -45,60 +45,63 @@ def main():
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
 
-    gen_response = generate_content(client, messages, verbose)
-    print(f"Response:{gen_response}")
+    iters = 0
+    while True:
+        iters += 1
+        if iters > MAX_ITERS:
+            print(f"Maximum iterations {MAX_ITERS} reached.")
+            sys.exit(1)
+        try:
+            final_response = generate_content(client, messages, verbose)
+            if final_response:
+                print(f"Final response:\n{final_response}")
+                break
+        except Exception as e:
+            print(f"Error in generate content: {e}")
 
 
 def generate_content(client, messages, verbose):
-    for i in range(19):
-        try:
-            response = client.models.generate_content(
-                model="gemini-2.0-flash-001",
-                contents=messages,
-                config=types.GenerateContentConfig(
-                    tools=[available_functions],
-                    system_instruction=system_prompt,
-                ),
-            )
-        except Exception as e:
-            return f"Fatal Error from client in {i}:\n==\n{e}\n=="
-
-        if not response.function_calls:
-            return response.text
-
-        for i in response.candidates:
-            messages.append(i.content)
-
-        try:
-            function_responses = []
-            for function_call_part in response.function_calls:
-                function_call_result = call_function(function_call_part, verbose)
-                if (
-                    not function_call_result.parts
-                    or not function_call_result.parts[0].function_response
-                ):
-                    raise Exception("empty function call result")
-                if verbose:
-                    print(
-                        f"-> {function_call_result.parts[0].function_response.response}"
-                    )
-                function_responses.append(function_call_result.parts[0])
-            if not function_responses:
-                raise Exception("no function responses generated, Exiting.")
-
-            messages.append(
-                types.Content(
-                    role="tool",
-                    parts=function_responses,
-                )
-            )
-        except Exception as e:
-            return f"Fatal Error in function responses in {i}:\n==\n{e}\n=="
-
+    response = client.models.generate_content(
+        model="gemini-2.0-flash-001",
+        contents=messages,
+        config=types.GenerateContentConfig(
+            tools=[available_functions],
+            system_instruction=system_prompt,
+        ),
+    )
     prompt_tokens = response.usage_metadata.prompt_token_count
     response_tokens = response.usage_metadata.candidates_token_count
     if verbose:
         print(f"Prompt tokens: {prompt_tokens}\nResponse tokens: {response_tokens}")
+
+    if response.candidates:
+        for candidate in response.candidates:
+            function_call_content = candidate.content
+            messages.append(function_call_content)
+
+    if not response.function_calls:
+        return response.text
+
+    function_responses = []
+    for function_call_part in response.function_calls:
+        function_call_result = call_function(function_call_part, verbose)
+        if (
+            not function_call_result.parts
+            or not function_call_result.parts[0].function_response
+        ):
+            raise Exception("empty function call result")
+        if verbose:
+            print(f"-> {function_call_result.parts[0].function_response.response}")
+        function_responses.append(function_call_result.parts[0])
+    if not function_responses:
+        raise Exception("No function responses generated, exiting.")
+
+    messages.append(
+        types.Content(
+            role="tool",
+            parts=function_responses,
+        )
+    )
 
 
 if __name__ == "__main__":
